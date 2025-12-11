@@ -11,6 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repo
+      # ▼▼▼
         uses: actions/checkout@v4
 
       - name: Set up PHP
@@ -21,6 +22,12 @@ jobs:
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress
+
+      # ⭐⭐ PASO NUEVO: preparar el entorno de Laravel ⭐⭐
+      - name: Prepare Laravel environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
 
       - name: Run PHPUnit tests
         run: php artisan test
