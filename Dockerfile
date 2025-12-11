@@ -17,9 +17,9 @@ RUN apt-get update && apt-get install -y \
 # Copiar Composer desde la imagen oficial
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copiar los archivos de composer e instalar dependencias
+# Copiar archivos de composer e instalar dependencias (SIN scripts)
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --no-progress --prefer-dist --no-dev
+RUN composer install --no-interaction --no-progress --prefer-dist --no-dev --no-scripts
 
 # Copiar el resto del código de la aplicación
 COPY . .
