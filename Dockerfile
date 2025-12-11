@@ -1,32 +1,35 @@
-# Imagen base con PHP 8.2 + extensiones necesarias
-FROM php:8.2-fpm
+# Imagen base oficial de PHP con extensiones mínimas
+FROM php:8.2-cli
+
+# Directorio de trabajo dentro del contenedor
+WORKDIR /var/www/html
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
-    libpq-dev \
     libzip-dev \
-    curl \
-    && docker-php-ext-install pdo pdo_mysql pdo_pgsql zip
+    libonig-dev \
+    libxml2-dev \
+    && docker-php-ext-install pdo pdo_mysql zip \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar Composer
+# Copiar Composer desde la imagen oficial
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Establecer directorio de trabajo
-WORKDIR /var/www/html
+# Copiar los archivos de composer e instalar dependencias
+COPY composer.json composer.lock ./
+RUN composer install --no-interaction --no-progress --prefer-dist --no-dev
 
-# Copiar archivos del proyecto
+# Copiar el resto del código de la aplicación
 COPY . .
 
-# Instalar dependencias de PHP
-RUN composer install --no-dev --optimize-autoloader
-
-# Generar APP_KEY si no existe (útil para contenedor)
-RUN php artisan key:generate --force
+# Dar permisos a storage y bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
 # Exponer el puerto 8000
 EXPOSE 8000
 
-# Comando por defecto (servidor de Laravel)
+# Comando por defecto: levantar el servidor embebido de Laravel
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
