@@ -11,8 +11,6 @@ class Tarea extends Model
 
     /**
      * Atributos que se pueden asignar masivamente.
-     *
-     * @var array<int, string>
      */
     protected $fillable = [
         'titulo',
